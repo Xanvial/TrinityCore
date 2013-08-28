@@ -33,24 +33,25 @@ enum Spells
 
 enum Events
 {
-    EVENT_BERSERK               = 0,
-    EVENT_CLOUD                 = 1,
-    EVENT_INJECT                = 2,
-    EVENT_SPRAY                 = 3
+    EVENT_BERSERK               = 1,
+    EVENT_CLOUD                 = 2,
+    EVENT_INJECT                = 3,
+    EVENT_SPRAY                 = 4
 };
 
 enum CreatureId
 {
-    MOB_FALLOUT_SLIME           = 16290
+    NPC_FALLOUT_SLIME           = 16290
 };
 
 class boss_grobbulus : public CreatureScript
 {
-public: boss_grobbulus() : CreatureScript("boss_grobbulus") { }
+public:
+    boss_grobbulus() : CreatureScript("boss_grobbulus") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_grobbulusAI (creature);
+        return new boss_grobbulusAI(creature);
     }
 
     struct boss_grobbulusAI : public BossAI
@@ -60,7 +61,7 @@ public: boss_grobbulus() : CreatureScript("boss_grobbulus") { }
             me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_POISON_CLOUD_ADD, true);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             _EnterCombat();
             events.ScheduleEvent(EVENT_CLOUD, 15000);
@@ -69,16 +70,16 @@ public: boss_grobbulus() : CreatureScript("boss_grobbulus") { }
             events.ScheduleEvent(EVENT_BERSERK, 12*60000);
         }
 
-        void SpellHitTarget(Unit* target, const SpellInfo* spell)
+        void SpellHitTarget(Unit* target, const SpellInfo* spell) OVERRIDE
         {
             if (spell->Id == uint32(SPELL_SLIME_SPRAY))
             {
-                if (TempSummon* slime = me->SummonCreature(MOB_FALLOUT_SLIME, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0))
+                if (TempSummon* slime = me->SummonCreature(NPC_FALLOUT_SLIME, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0))
                     DoZoneInCombat(slime);
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -120,27 +121,27 @@ class npc_grobbulus_poison_cloud : public CreatureScript
 public:
     npc_grobbulus_poison_cloud() : CreatureScript("npc_grobbulus_poison_cloud") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_grobbulus_poison_cloudAI(creature);
     }
 
-    struct npc_grobbulus_poison_cloudAI : public Scripted_NoMovementAI
+    struct npc_grobbulus_poison_cloudAI : public ScriptedAI
     {
-        npc_grobbulus_poison_cloudAI(Creature* creature) : Scripted_NoMovementAI(creature)
+        npc_grobbulus_poison_cloudAI(Creature* creature) : ScriptedAI(creature)
         {
-            Reset();
+            SetCombatMovement(false);
         }
 
         uint32 Cloud_Timer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             Cloud_Timer = 1000;
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (Cloud_Timer <= diff)
             {

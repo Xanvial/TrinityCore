@@ -49,18 +49,21 @@ class npc_warmage_violetstand : public CreatureScript
 public:
     npc_warmage_violetstand() : CreatureScript("npc_warmage_violetstand") { }
 
-    struct npc_warmage_violetstandAI : public Scripted_NoMovementAI
+    struct npc_warmage_violetstandAI : public ScriptedAI
     {
-        npc_warmage_violetstandAI(Creature* creature) : Scripted_NoMovementAI(creature){}
+        npc_warmage_violetstandAI(Creature* creature) : ScriptedAI(creature)
+        {
+            SetCombatMovement(false);
+        }
 
         uint64 uiTargetGUID;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             uiTargetGUID = 0;
         }
 
-        void UpdateAI(const uint32 /*uiDiff*/)
+        void UpdateAI(uint32 /*uiDiff*/) OVERRIDE
         {
             if (me->IsNonMeleeSpellCasted(false))
                 return;
@@ -100,7 +103,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_warmage_violetstandAI(creature);
     }

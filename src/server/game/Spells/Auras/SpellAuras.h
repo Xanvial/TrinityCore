@@ -23,7 +23,6 @@
 #include "SpellInfo.h"
 #include "Unit.h"
 
-class Unit;
 class SpellInfo;
 struct SpellModifier;
 struct ProcTriggerSpell;
@@ -153,13 +152,22 @@ class Aura
         bool IsArea() const;
         bool IsPassive() const;
         bool IsDeathPersistent() const;
-        bool IsRemovedOnShapeLost(Unit* target) const { return (GetCasterGUID() == target->GetGUID() && m_spellInfo->Stances && !(m_spellInfo->AttributesEx2 & SPELL_ATTR2_NOT_NEED_SHAPESHIFT) && !(m_spellInfo->Attributes & SPELL_ATTR0_NOT_SHAPESHIFT)); }
+
+        bool IsRemovedOnShapeLost(Unit* target) const
+        {
+            return GetCasterGUID() == target->GetGUID()
+                    && m_spellInfo->Stances
+                    && !(m_spellInfo->AttributesEx2 & SPELL_ATTR2_NOT_NEED_SHAPESHIFT)
+                    && !(m_spellInfo->Attributes & SPELL_ATTR0_NOT_SHAPESHIFT);
+        }
+
         bool CanBeSaved() const;
         bool IsRemoved() const { return m_isRemoved; }
         bool CanBeSentToClient() const;
         // Single cast aura helpers
-        bool IsSingleTarget() const {return m_isSingleTarget;}
-        void SetIsSingleTarget(bool val) { m_isSingleTarget = val;}
+        bool IsSingleTarget() const {return m_isSingleTarget; }
+        bool IsSingleTargetWith(Aura const* aura) const;
+        void SetIsSingleTarget(bool val) { m_isSingleTarget = val; }
         void UnregisterSingleTarget();
         int32 CalcDispelChance(Unit* auraTarget, bool offensive) const;
 
@@ -175,7 +183,7 @@ class Aura
 
         // Helpers for targets
         ApplicationMap const & GetApplicationMap() {return m_applications;}
-        void GetApplicationList(std::list<AuraApplication*> & applicationList) const;
+        void GetApplicationList(Unit::AuraApplicationList& applicationList) const;
         const AuraApplication * GetApplicationOfTarget (uint64 guid) const { ApplicationMap::const_iterator itr = m_applications.find(guid); if (itr != m_applications.end()) return itr->second; return NULL; }
         AuraApplication * GetApplicationOfTarget (uint64 guid) { ApplicationMap::iterator itr = m_applications.find(guid); if (itr != m_applications.end()) return itr->second; return NULL; }
         bool IsAppliedOnTarget(uint64 guid) const { return m_applications.find(guid) != m_applications.end(); }
@@ -221,10 +229,12 @@ class Aura
         // Spell Proc Hooks
         bool CallScriptCheckProcHandlers(AuraApplication const* aurApp, ProcEventInfo& eventInfo);
         bool CallScriptPrepareProcHandlers(AuraApplication const* aurApp, ProcEventInfo& eventInfo);
-        void CallScriptProcHandlers(AuraApplication const* aurApp, ProcEventInfo& eventInfo);
+        bool CallScriptProcHandlers(AuraApplication const* aurApp, ProcEventInfo& eventInfo);
         void CallScriptAfterProcHandlers(AuraApplication const* aurApp, ProcEventInfo& eventInfo);
         bool CallScriptEffectProcHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, ProcEventInfo& eventInfo);
         void CallScriptAfterEffectProcHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, ProcEventInfo& eventInfo);
+
+        AuraScript* GetScriptByName(std::string const& scriptName) const;
 
         std::list<AuraScript*> m_loadedScripts;
     private:

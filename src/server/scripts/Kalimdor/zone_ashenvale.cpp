@@ -78,7 +78,7 @@ class npc_torek : public CreatureScript
             uint32 Thunderclap_Timer;
             bool Completed;
 
-            void WaypointReached(uint32 waypointId)
+            void WaypointReached(uint32 waypointId) OVERRIDE
             {
                 if (Player* player = GetPlayerForEscort())
                 {
@@ -91,7 +91,7 @@ class npc_torek : public CreatureScript
                             Talk(SAY_PREPARE, player->GetGUID());
                             break;
                         case 19:
-                            //TODO: verify location and creatures amount.
+                            /// @todo verify location and creatures amount.
                             me->SummonCreature(ENTRY_DURIEL, 1776.73f, -2049.06f, 109.83f, 1.54f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                             me->SummonCreature(ENTRY_SILVERWING_SENTINEL, 1774.64f, -2049.41f, 109.83f, 1.40f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                             me->SummonCreature(ENTRY_SILVERWING_WARRIOR, 1778.73f, -2049.50f, 109.83f, 1.67f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
@@ -108,23 +108,23 @@ class npc_torek : public CreatureScript
                 }
             }
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 Rend_Timer = 5000;
                 Thunderclap_Timer = 8000;
                 Completed = false;
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
             }
 
-            void JustSummoned(Creature* summoned)
+            void JustSummoned(Creature* summoned) OVERRIDE
             {
                 summoned->AI()->AttackStart(me);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 npc_escortAI::UpdateAI(diff);
 
@@ -133,7 +133,7 @@ class npc_torek : public CreatureScript
 
                 if (Rend_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_REND);
+                    DoCastVictim(SPELL_REND);
                     Rend_Timer = 20000;
                 } else Rend_Timer -= diff;
 
@@ -145,16 +145,16 @@ class npc_torek : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new npc_torekAI(creature);
         }
 
-        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
+        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) OVERRIDE
         {
             if (quest->GetQuestId() == QUEST_TOREK_ASSULT)
             {
-                //TODO: find companions, make them follow Torek, at any time (possibly done by core/database in future?)
+                /// @todo find companions, make them follow Torek, at any time (possibly done by core/database in future?)
                 creature->AI()->Talk(SAY_READY, player->GetGUID());
                 creature->setFaction(113);
 
@@ -200,7 +200,7 @@ class npc_ruul_snowhoof : public CreatureScript
         {
             npc_ruul_snowhoofAI(Creature* creature) : npc_escortAI(creature) { }
 
-            void WaypointReached(uint32 waypointId)
+            void WaypointReached(uint32 waypointId) OVERRIDE
             {
                 Player* player = GetPlayerForEscort();
                 if (!player)
@@ -229,31 +229,31 @@ class npc_ruul_snowhoof : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) {}
+            void EnterCombat(Unit* /*who*/) OVERRIDE {}
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 if (GameObject* Cage = me->FindNearestGameObject(GO_CAGE, 20))
                     Cage->SetGoState(GO_STATE_READY);
             }
 
-            void JustSummoned(Creature* summoned)
+            void JustSummoned(Creature* summoned) OVERRIDE
             {
                 summoned->AI()->AttackStart(me);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 npc_escortAI::UpdateAI(diff);
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new npc_ruul_snowhoofAI(creature);
         }
 
-        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
+        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) OVERRIDE
         {
             if (quest->GetQuestId() == QUEST_FREEDOM_TO_RUUL)
             {
@@ -325,12 +325,12 @@ class npc_muglash : public CreatureScript
             uint32 EventTimer;
             bool IsBrazierExtinguished;
 
-            void JustSummoned(Creature* summoned)
+            void JustSummoned(Creature* summoned) OVERRIDE
             {
                 summoned->AI()->AttackStart(me);
             }
 
-            void WaypointReached(uint32 waypointId)
+            void WaypointReached(uint32 waypointId) OVERRIDE
             {
                 if (Player* player = GetPlayerForEscort())
                 {
@@ -362,7 +362,7 @@ class npc_muglash : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
                 if (Player* player = GetPlayerForEscort())
                     if (HasEscortState(STATE_ESCORT_PAUSED))
@@ -373,14 +373,14 @@ class npc_muglash : public CreatureScript
                     }
             }
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 EventTimer = 10000;
                 WaveId = 0;
                 IsBrazierExtinguished = false;
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 if (HasEscortState(STATE_ESCORT_ESCORTING))
                     if (Player* player = GetPlayerForEscort())
@@ -411,11 +411,11 @@ class npc_muglash : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 uiDiff)
+            void UpdateAI(uint32 uiDiff) OVERRIDE
             {
                 npc_escortAI::UpdateAI(uiDiff);
 
-                if (!me->getVictim())
+                if (!me->GetVictim())
                 {
                     if (HasEscortState(STATE_ESCORT_PAUSED) && IsBrazierExtinguished)
                     {
@@ -434,12 +434,12 @@ class npc_muglash : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new npc_muglashAI(creature);
         }
 
-        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
+        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) OVERRIDE
         {
             if (quest->GetQuestId() == QUEST_VORSHA)
             {
@@ -460,7 +460,7 @@ class go_naga_brazier : public GameObjectScript
     public:
         go_naga_brazier() : GameObjectScript("go_naga_brazier") { }
 
-        bool OnGossipHello(Player* /*player*/, GameObject* go)
+        bool OnGossipHello(Player* /*player*/, GameObject* go) OVERRIDE
         {
             if (Creature* creature = GetClosestCreatureWithEntry(go, NPC_MUGLASH, INTERACTION_DISTANCE*2))
             {

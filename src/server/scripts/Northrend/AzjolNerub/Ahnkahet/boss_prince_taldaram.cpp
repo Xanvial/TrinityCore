@@ -21,7 +21,7 @@
 
 enum Spells
 {
-    SPELL_BLOODTHIRST                             = 55968, //Trigger Spell + add aura
+    SPELL_BLOODTHIRST                             = 55968, // Trigger Spell + add aura
     SPELL_CONJURE_FLAME_SPHERE                    = 55931,
     SPELL_FLAME_SPHERE_SUMMON_1                   = 55895, // 1x 30106
     H_SPELL_FLAME_SPHERE_SUMMON_1                 = 59511, // 1x 31686
@@ -40,14 +40,16 @@ enum Spells
     H_CREATURE_FLAME_SPHERE_2                     = 31687,
     SPELL_HOVER_FALL                              = 60425
 };
+
 enum Misc
 {
     DATA_EMBRACE_DMG                              = 20000,
     H_DATA_EMBRACE_DMG                            = 40000,
-    DATA_SPHERE_DISTANCE                          =    15
+    DATA_SPHERE_DISTANCE                          = 15
 };
-#define DATA_SPHERE_ANGLE_OFFSET            0.7f
-#define DATA_GROUND_POSITION_Z             11.30809f
+
+#define DATA_SPHERE_ANGLE_OFFSET                    0.7f
+#define DATA_GROUND_POSITION_Z                      11.30809f
 
 enum Yells
 {
@@ -66,11 +68,6 @@ enum CombatPhase
     JUST_VANISHED,
     VANISHED,
     FEEDING
-};
-enum GameObjects
-{
-    GO_SPHERE1                                    = 193093,
-    GO_SPHERE2                                    = 193094
 };
 
 class boss_taldaram : public CreatureScript
@@ -100,7 +97,7 @@ public:
 
         InstanceScript* instance;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             uiBloodthirstTimer = 10*IN_MILLISECONDS;
             uiVanishTimer = urand(25*IN_MILLISECONDS, 35*IN_MILLISECONDS);
@@ -111,17 +108,17 @@ public:
             uiPhaseTimer = 0;
             uiEmbraceTarget = 0;
             if (instance)
-                instance->SetData(DATA_PRINCE_TALDARAM_EVENT, NOT_STARTED);
+                instance->SetBossState(DATA_PRINCE_TALDARAM, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             if (instance)
-                instance->SetData(DATA_PRINCE_TALDARAM_EVENT, IN_PROGRESS);
+                instance->SetBossState(DATA_PRINCE_TALDARAM, IN_PROGRESS);
             Talk(SAY_AGGRO);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -184,7 +181,7 @@ public:
                         Talk(SAY_FEED);
                         me->GetMotionMaster()->Clear();
                         me->SetSpeed(MOVE_WALK, 1.0f, true);
-                        me->GetMotionMaster()->MoveChase(me->getVictim());
+                        me->GetMotionMaster()->MoveChase(me->GetVictim());
                         Phase = FEEDING;
                         uiPhaseTimer = 20*IN_MILLISECONDS;
                         break;
@@ -219,7 +216,7 @@ public:
                             {
                                 target = Unit::GetUnit(*me, (*itr)->getUnitGuid());
                                 // exclude pets & totems
-                                if (target && target->GetTypeId() == TYPEID_PLAYER && target->isAlive())
+                                if (target && target->GetTypeId() == TYPEID_PLAYER && target->IsAlive())
                                     target_list.push_back(target);
                                 target = NULL;
                             }
@@ -243,11 +240,11 @@ public:
             } else uiPhaseTimer -= diff;
         }
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage)
+        void DamageTaken(Unit* /*done_by*/, uint32 &damage) OVERRIDE
         {
             Unit* pEmbraceTarget = GetEmbraceTarget();
 
-            if (Phase == FEEDING && pEmbraceTarget && pEmbraceTarget->isAlive())
+            if (Phase == FEEDING && pEmbraceTarget && pEmbraceTarget->IsAlive())
             {
               uiEmbraceTakenDamage += damage;
               if (uiEmbraceTakenDamage > (uint32) DUNGEON_MODE(DATA_EMBRACE_DMG, H_DATA_EMBRACE_DMG))
@@ -260,17 +257,17 @@ public:
             }
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             Talk(SAY_DEATH);
 
             if (instance)
-                instance->SetData(DATA_PRINCE_TALDARAM_EVENT, DONE);
+                instance->SetBossState(DATA_PRINCE_TALDARAM, DONE);
         }
 
-        void KilledUnit(Unit* victim)
+        void KilledUnit(Unit* victim) OVERRIDE
         {
-            if (victim == me)
+            if (victim->GetTypeId() != TYPEID_PLAYER)
                 return;
 
             Unit* pEmbraceTarget = GetEmbraceTarget();
@@ -285,21 +282,10 @@ public:
 
         bool CheckSpheres()
         {
-            if (!instance)
-                return false;
-
-            uint64 uiSphereGuids[2];
-            uiSphereGuids[0] = instance->GetData64(DATA_SPHERE1);
-            uiSphereGuids[1] = instance->GetData64(DATA_SPHERE2);
-
-            for (uint8 i=0; i < 2; ++i)
-            {
-                GameObject* pSpheres = instance->instance->GetGameObject(uiSphereGuids[i]);
-                if (!pSpheres)
+            for (uint8 i = 0; i < 2; ++i)
+                if (!instance->GetData(DATA_SPHERE_1 + i))
                     return false;
-                if (pSpheres->GetGoState() != GO_STATE_ACTIVE)
-                    return false;
-            }
+
             RemovePrison();
             return true;
         }
@@ -328,20 +314,20 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_taldaramAI(creature);
+        return GetAhnKahetAI<boss_taldaramAI>(creature);
     }
 };
 
-class mob_taldaram_flamesphere : public CreatureScript
+class npc_taldaram_flamesphere : public CreatureScript
 {
 public:
-    mob_taldaram_flamesphere() : CreatureScript("mob_taldaram_flamesphere") { }
+    npc_taldaram_flamesphere() : CreatureScript("npc_taldaram_flamesphere") { }
 
-    struct mob_taldaram_flamesphereAI : public ScriptedAI
+    struct npc_taldaram_flamesphereAI : public ScriptedAI
     {
-        mob_taldaram_flamesphereAI(Creature* creature) : ScriptedAI(creature)
+        npc_taldaram_flamesphereAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
         }
@@ -349,7 +335,7 @@ public:
         uint32 uiDespawnTimer;
         InstanceScript* instance;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             //! HACK: Creature's can't have MOVEMENTFLAG_FLYING
@@ -362,15 +348,16 @@ public:
             uiDespawnTimer = 10*IN_MILLISECONDS;
         }
 
-        void EnterCombat(Unit* /*who*/) {}
-        void MoveInLineOfSight(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
 
-        void JustDied(Unit* /*killer*/)
+
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             DoCast(me, SPELL_FLAME_SPHERE_DEATH_EFFECT);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (uiDespawnTimer <= diff)
                 me->DisappearAndDie();
@@ -379,52 +366,51 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new mob_taldaram_flamesphereAI(creature);
+        return new npc_taldaram_flamesphereAI(creature);
     }
 };
 
 class prince_taldaram_sphere : public GameObjectScript
 {
-public:
-    prince_taldaram_sphere() : GameObjectScript("prince_taldaram_sphere") { }
+    public:
+        prince_taldaram_sphere() : GameObjectScript("prince_taldaram_sphere") { }
 
-    bool OnGossipHello(Player* /*player*/, GameObject* go)
-    {
-        InstanceScript* instance = go->GetInstanceScript();
-        if (!instance)
-            return true;
-
-        Creature* pPrinceTaldaram = Unit::GetCreature(*go, instance->GetData64(DATA_PRINCE_TALDARAM));
-        if (pPrinceTaldaram && pPrinceTaldaram->isAlive())
+        bool OnGossipHello(Player* /*player*/, GameObject* go)
         {
-            // maybe these are hacks :(
-            go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
-            go->SetGoState(GO_STATE_ACTIVE);
+            InstanceScript* instance = go->GetInstanceScript();
+            if (!instance)
+                return false;
 
-            switch (go->GetEntry())
+            Creature* PrinceTaldaram = ObjectAccessor::GetCreature(*go, instance->GetData64(DATA_PRINCE_TALDARAM));
+            if (PrinceTaldaram && PrinceTaldaram->IsAlive())
             {
-                case GO_SPHERE1:
-                    instance->SetData(DATA_SPHERE1_EVENT, IN_PROGRESS);
-                    pPrinceTaldaram->AI()->Talk(SAY_1);
-                    break;
+                // maybe these are hacks :(
+                go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                go->SetGoState(GO_STATE_ACTIVE);
 
-                case GO_SPHERE2:
-                    instance->SetData(DATA_SPHERE2_EVENT, IN_PROGRESS);
-                    pPrinceTaldaram->AI()->Talk(SAY_1);
-                    break;
+                switch (go->GetEntry())
+                {
+                    case GO_SPHERE_1:
+                        instance->SetData(DATA_SPHERE_1, IN_PROGRESS);
+                        PrinceTaldaram->AI()->Talk(SAY_1);
+                        break;
+                    case GO_SPHERE_2:
+                        instance->SetData(DATA_SPHERE_2, IN_PROGRESS);
+                        PrinceTaldaram->AI()->Talk(SAY_1);
+                        break;
+                }
+
+                CAST_AI(boss_taldaram::boss_taldaramAI, PrinceTaldaram->AI())->CheckSpheres();
             }
-
-            CAST_AI(boss_taldaram::boss_taldaramAI, pPrinceTaldaram->AI())->CheckSpheres();
+            return true;
         }
-        return true;
-    }
 };
 
 void AddSC_boss_taldaram()
 {
-    new boss_taldaram;
-    new mob_taldaram_flamesphere;
-    new prince_taldaram_sphere;
+    new boss_taldaram();
+    new npc_taldaram_flamesphere();
+    new prince_taldaram_sphere();
 }

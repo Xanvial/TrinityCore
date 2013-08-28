@@ -39,9 +39,9 @@ class npc_valkyr_battle_maiden : public CreatureScript
 public:
     npc_valkyr_battle_maiden() : CreatureScript("npc_valkyr_battle_maiden") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_valkyr_battle_maidenAI (creature);
+        return new npc_valkyr_battle_maidenAI(creature);
     }
 
     struct npc_valkyr_battle_maidenAI : public PassiveAI
@@ -52,7 +52,7 @@ public:
         float x, y, z;
         uint32 phase;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             me->setActive(true);
             me->SetVisible(false);
@@ -69,15 +69,14 @@ public:
             me->SetPosition(x, y, z, 0.0f);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (FlyBackTimer <= diff)
             {
                 Player* player = NULL;
-                if (me->isSummon())
+                if (me->IsSummon())
                     if (Unit* summoner = me->ToTempSummon()->GetSummoner())
-                        if (summoner->GetTypeId() == TYPEID_PLAYER)
-                            player = CAST_PLR(summoner);
+                        player = summoner->ToPlayer();
 
                 if (!player)
                     phase = 3;

@@ -72,7 +72,7 @@ struct AchievementCriteriaEntry
     union
     {
         // ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE          = 0
-        // TODO: also used for player deaths..
+        /// @todo also used for player deaths..
         struct
         {
             uint32  creatureID;                             // 3
@@ -299,14 +299,14 @@ struct AchievementCriteriaEntry
         // ACHIEVEMENT_CRITERIA_TYPE_EXPLORE_AREA           = 43
         struct
         {
-            // TODO: This rank is _NOT_ the index from AreaTable.dbc
+            /// @todo This rank is _NOT_ the index from AreaTable.dbc
             uint32  areaReference;                          // 3
         } explore_area;
 
         // ACHIEVEMENT_CRITERIA_TYPE_OWN_RANK               = 44
         struct
         {
-            // TODO: This rank is _NOT_ the index from CharTitles.dbc
+            /// @todo This rank is _NOT_ the index from CharTitles.dbc
             uint32  rank;                                   // 3
         } own_rank;
 
@@ -339,7 +339,7 @@ struct AchievementCriteriaEntry
         } visit_barber;
 
         // ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM        = 49
-        // TODO: where is the required itemlevel stored?
+        /// @todo where is the required itemlevel stored?
         struct
         {
             uint32  itemSlot;                               // 3
@@ -374,7 +374,7 @@ struct AchievementCriteriaEntry
         } hk_race;
 
         // ACHIEVEMENT_CRITERIA_TYPE_DO_EMOTE               = 54
-        // TODO: where is the information about the target stored?
+        /// @todo where is the information about the target stored?
         struct
         {
             uint32  emoteID;                                // 3 enum TextEmotes
@@ -425,7 +425,7 @@ struct AchievementCriteriaEntry
         } use_gameobject;
 
         // ACHIEVEMENT_CRITERIA_TYPE_SPECIAL_PVP_KILL       = 70
-        // TODO: are those special criteria stored in the dbc or do we have to add another sql table?
+        /// @todo are those special criteria stored in the dbc or do we have to add another sql table?
         struct
         {
             uint32  unused;                                 // 3
@@ -511,25 +511,27 @@ struct AchievementCriteriaEntry
         } raw;
     };
 
+    //uint32 unk;                                           // 5
+
     struct
     {
         uint32  additionalRequirement_type;
         uint32  additionalRequirement_value;
     } additionalRequirements[MAX_CRITERIA_REQUIREMENTS];
 
-    char*  name;                                            // 9        m_description_lang
-    uint32  completionFlag;                                 // 10       m_flags
-    uint32  timedCriteriaStartType;                         // 11       m_timer_start_event Only appears with timed achievements, seems to be the type of starting a timed Achievement, only type 1 and some of type 6 need manual starting
+    char*  name;                                            // 10        m_description_lang
+    uint32  completionFlag;                                 // 11       m_flags
+    uint32  timedCriteriaStartType;                         // 12       m_timer_start_event Only appears with timed achievements, seems to be the type of starting a timed Achievement, only type 1 and some of type 6 need manual starting
                                                             //              1: ByEventId(?) (serverside IDs),    2: ByQuestId,   5: ByCastSpellId(?)
                                                             //              6: BySpellIdTarget(some of these are unknown spells, some not, some maybe spells)
                                                             //              7: ByKillNpcId,  9: ByUseItemId
-    uint32  timedCriteriaMiscId;                            // 12       m_timer_asset_id Alway appears with timed events, used internally to start the achievement, store
-    uint32  timeLimit;                                      // 13       m_timer_time time limit in seconds
-    uint32  showOrder;                                      // 14       m_ui_order  also used in achievement shift-links as index in state bitmask
-    //uint32 unk1;                                          // 15 only one value, still unknown
-    //uint32 unk2;                                          // 16 all zeros
-    uint32 additionalConditionType[MAX_ADDITIONAL_CRITERIA_CONDITIONS];     // 17-19
-    uint32 additionalConditionValue[MAX_ADDITIONAL_CRITERIA_CONDITIONS];    // 20-22
+    uint32  timedCriteriaMiscId;                            // 13       m_timer_asset_id Alway appears with timed events, used internally to start the achievement, store
+    uint32  timeLimit;                                      // 14       m_timer_time time limit in seconds
+    uint32  showOrder;                                      // 15       m_ui_order  also used in achievement shift-links as index in state bitmask
+    //uint32 unk1;                                          // 16 only one value, still unknown
+    //uint32 unk2;                                          // 17 all zeros
+    uint32 additionalConditionType[MAX_ADDITIONAL_CRITERIA_CONDITIONS];      // 18-20
+    uint32 additionalConditionValue[MAX_ADDITIONAL_CRITERIA_CONDITIONS - 1]; // 21-22 WTF one column was cut off here in 4.3.4
 };
 
 struct AreaTableEntry
@@ -628,6 +630,15 @@ struct BankBagSlotPricesEntry
 {
     uint32  ID;
     uint32  price;
+};
+
+struct BannedAddOnsEntry
+{
+    uint32 Id;
+    // uint32 NameMD5[4];
+    // uint32 VersionMD5[4];
+    // uint32 Timestamp;
+    // uint32 State;
 };
 
 struct BarberShopStyleEntry
@@ -893,7 +904,7 @@ struct DungeonEncounterEntry
 {
     uint32 id;                                              // 0        unique id
     uint32 mapId;                                           // 1        map id
-    uint32 difficulty;                                      // 2        instance mode
+    int32 difficulty;                                       // 2        instance mode
     //uint32 unk0;                                          // 3
     uint32 encounterIndex;                                  // 4        encounter index for creating completed mask
     char* encounterName;                                    // 5        encounter name
@@ -1082,6 +1093,11 @@ struct GtChanceToMeleeCritEntry
 struct GtChanceToSpellCritBaseEntry
 {
     float    base;
+};
+
+struct GtNPCManaCostScalerEntry
+{
+    float    ratio;
 };
 
 struct GtChanceToSpellCritEntry
@@ -1708,7 +1724,7 @@ struct SpellEffectEntry
 // SpellAuraOptions.dbc
 struct SpellAuraOptionsEntry
 {
-    uint32    Id;                                           // 0        m_ID
+    uint32    Id;                                           // 0       m_ID
     uint32    StackAmount;                                  // 1       m_cumulativeAura
     uint32    procChance;                                   // 2       m_procChance
     uint32    procCharges;                                  // 3       m_procCharges
@@ -2044,7 +2060,7 @@ struct SummonPropertiesEntry
     uint32  Category;                                       // 1, 0 - can't be controlled?, 1 - something guardian?, 2 - pet?, 3 - something controllable?, 4 - taxi/mount?
     uint32  Faction;                                        // 2, 14 rows > 0
     uint32  Type;                                           // 3, see enum
-    uint32  Slot;                                           // 4, 0-6
+    int32   Slot;                                           // 4, 0-6
     uint32  Flags;                                          // 5
 };
 
@@ -2068,6 +2084,8 @@ struct TalentEntry
     //uint64  allowForPet;                                  // 17       m_categoryMask its a 64 bit mask for pet 1<<m_categoryEnumID in CreatureFamily.dbc
 };
 
+#define MAX_MASTERY_SPELLS 2
+
 struct TalentTabEntry
 {
     uint32  TalentTabID;                                    // 0
@@ -2079,7 +2097,7 @@ struct TalentTabEntry
     //char* internalname;                                   // 6        m_backgroundFile
     //char* description;                                    // 7
     //uint32 rolesMask;                                     // 8 4.0.0
-    //uint32 MasterySpells[2];                              // 9-10 passive mastery bonus spells?
+    uint32 MasterySpellId[MAX_MASTERY_SPELLS];              // 9-10 passive mastery bonus spells?
 };
 
 struct TalentTreePrimarySpellsEntry
@@ -2131,6 +2149,27 @@ struct TotemCategoryEntry
     //char*   name;                                         // 1        m_name_lang
     uint32    categoryType;                                 // 2        m_totemCategoryType (one for specialization)
     uint32    categoryMask;                                 // 3        m_totemCategoryMask (compatibility mask for same type: different for totems, compatible from high to low for rods)
+};
+
+struct UnitPowerBarEntry
+{
+    uint32  Id;
+    uint32  MinPower;
+    uint32  MaxPower;
+    //uint32  Unk0;
+    //uint32  Unk1;
+    //float   Unk2;
+    //float   Unk3;
+    //uint32  BarType;
+    //uint32  TextureFile[6];
+    //uint32  Unk4[6];
+    //uint32  DisplayFlags;
+    //char*   PowerName;
+    //char*   CostString;
+    //char*   EmptyMessage;
+    //char*   Tooltip;
+    //float   StartInset;
+    //float   EndInset;
 };
 
 #define MAX_VEHICLE_SEATS 8

@@ -86,8 +86,8 @@ public:
         return true;
     }
 protected:
-    InstanceScript* _instance;
     Unit* _owner;
+    InstanceScript* _instance;
 };
 
 class boss_earthrager_ptah : public CreatureScript
@@ -127,12 +127,12 @@ public:
             Map::PlayerList const& players = me->GetMap()->GetPlayers();
             if (!players.isEmpty())
                 for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                    if (Player* player = itr->getSource())
+                    if (Player* player = itr->GetSource())
                         if (player->GetAreaId() == AREA_TOMB_OF_THE_EARTHRAGER)
                             player->GetSession()->SendPacket(data);
         }
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             _summonDeaths = 0;
             _hasDispersed = false;
@@ -144,7 +144,7 @@ public:
             events.ScheduleEvent(EVENT_EARTH_SPIKE, urand(16000, 21000), 0, PHASE_NORMAL);
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& damage)
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) OVERRIDE
         {
             if (me->HealthBelowPctDamaged(50, damage) && (events.GetPhaseMask() & PHASE_MASK_NORMAL) && !_hasDispersed)
             {
@@ -178,14 +178,14 @@ public:
             }
         }
 
-        void SetData(uint32 index, uint32 /*value*/)
+        void SetData(uint32 index, uint32 /*value*/) OVERRIDE
         {
             if (index == DATA_SUMMON_DEATHS)
             {
                 ++_summonDeaths;
                 if (_summonDeaths == 11) // All summons died
                 {
-                    SendWeather(WEATHER_STATE_UNK, 0.0f);
+                    SendWeather(WEATHER_STATE_FOG, 0.0f);
                     me->RemoveAurasDueToSpell(SPELL_PTAH_EXPLOSION);
                     events.SetPhase(PHASE_NORMAL);
                     events.ScheduleEvent(EVENT_RAGING_SMASH, urand(7000, 12000), 0, PHASE_NORMAL);
@@ -195,14 +195,14 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
             Talk(SAY_AGGRO);
             _EnterCombat();
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             Talk(SAY_DEATH);
@@ -210,14 +210,14 @@ public:
             Cleanup();
         }
 
-        void JustReachedHome()
+        void JustReachedHome() OVERRIDE
         {
             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             _JustReachedHome();
             instance->SetBossState(DATA_EARTHRAGER_PTAH, FAIL);
         }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim() || !CheckInRoom())
                 return;
@@ -262,11 +262,11 @@ public:
         }
 
     protected:
-        bool _hasDispersed;
         uint8 _summonDeaths;
+        bool _hasDispersed;
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return GetHallsOfOriginationAI<boss_earthrager_ptahAI>(creature);
     }
@@ -286,13 +286,13 @@ class spell_earthrager_ptah_flame_bolt : public SpellScriptLoader
                 Trinity::Containers::RandomResizeList(targets, GetCaster()->GetMap()->IsHeroic() ? 3 : 2);
             }
 
-            void Register()
+            void Register() OVERRIDE
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_earthrager_ptah_flame_bolt_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const OVERRIDE
         {
             return new spell_earthrager_ptah_flame_bolt_SpellScript();
         }

@@ -28,12 +28,12 @@ void GetPlayerInfo(ChatHandler* handler, Player* player)
         return;
 
     uint64 guid = player->GetGUID();
-    LfgDungeonSet dungeons = sLFGMgr->GetSelectedDungeons(guid);
+    lfg::LfgDungeonSet dungeons = sLFGMgr->GetSelectedDungeons(guid);
 
-    std::string const& state = sLFGMgr->GetStateString(sLFGMgr->GetState(guid));
+    std::string const& state = lfg::GetStateString(sLFGMgr->GetState(guid));
     handler->PSendSysMessage(LANG_LFG_PLAYER_INFO, player->GetName().c_str(),
-        state.c_str(), uint8(dungeons.size()), sLFGMgr->ConcatenateDungeons(dungeons).c_str(),
-        sLFGMgr->GetRolesString(sLFGMgr->GetRoles(guid)).c_str(), sLFGMgr->GetComment(guid).c_str());
+        state.c_str(), uint8(dungeons.size()), lfg::ConcatenateDungeons(dungeons).c_str(),
+        lfg::GetRolesString(sLFGMgr->GetRoles(guid)).c_str(), sLFGMgr->GetComment(guid).c_str());
 }
 
 class lfg_commandscript : public CommandScript
@@ -41,7 +41,7 @@ class lfg_commandscript : public CommandScript
 public:
     lfg_commandscript() : CommandScript("lfg_commandscript") { }
 
-    ChatCommand* GetCommands() const
+    ChatCommand* GetCommands() const OVERRIDE
     {
         static ChatCommand lfgCommandTable[] =
         {
@@ -87,12 +87,12 @@ public:
         }
 
         uint64 guid = grp->GetGUID();
-        std::string const& state = sLFGMgr->GetStateString(sLFGMgr->GetState(guid));
+        std::string const& state = lfg::GetStateString(sLFGMgr->GetState(guid));
         handler->PSendSysMessage(LANG_LFG_GROUP_INFO, grp->isLFGGroup(),
             state.c_str(), sLFGMgr->GetDungeon(guid));
 
         for (GroupReference* itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
-            GetPlayerInfo(handler, itr->getSource());
+            GetPlayerInfo(handler, itr->GetSource());
 
         return true;
     }

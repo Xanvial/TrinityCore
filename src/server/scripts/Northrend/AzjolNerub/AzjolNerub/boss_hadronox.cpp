@@ -72,7 +72,7 @@ public:
 
         float fMaxDistance;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 9.0f);
             me->SetFloatValue(UNIT_FIELD_COMBATREACH, 9.0f);
@@ -84,38 +84,38 @@ public:
             uiDoorsTimer = urand(20*IN_MILLISECONDS, 30*IN_MILLISECONDS);
             uiCheckDistanceTimer = 2*IN_MILLISECONDS;
 
-            if (instance && (instance->GetData(DATA_HADRONOX_EVENT) != DONE && !bFirstTime))
-                instance->SetData(DATA_HADRONOX_EVENT, FAIL);
+            if (instance && (instance->GetBossState(DATA_HADRONOX) != DONE && !bFirstTime))
+                instance->SetBossState(DATA_HADRONOX, FAIL);
 
             bFirstTime = false;
         }
 
         //when Hadronox kills any enemy (that includes a party member) she will regain 10% of her HP if the target had Leech Poison on
-        void KilledUnit(Unit* Victim)
+        void KilledUnit(Unit* Victim) OVERRIDE
         {
             // not sure if this aura check is correct, I think it is though
-            if (!Victim || !Victim->HasAura(DUNGEON_MODE(SPELL_LEECH_POISON, H_SPELL_LEECH_POISON)) || !me->isAlive())
+            if (!Victim || !Victim->HasAura(DUNGEON_MODE(SPELL_LEECH_POISON, H_SPELL_LEECH_POISON)) || !me->IsAlive())
                 return;
 
             me->ModifyHealth(int32(me->CountPctFromMaxHealth(10)));
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             if (instance)
-                instance->SetData(DATA_HADRONOX_EVENT, DONE);
+                instance->SetBossState(DATA_HADRONOX, DONE);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             if (instance)
-                instance->SetData(DATA_HADRONOX_EVENT, IN_PROGRESS);
+                instance->SetBossState(DATA_HADRONOX, IN_PROGRESS);
             me->SetInCombatWithZone();
         }
 
         void CheckDistance(float dist, const uint32 uiDiff)
         {
-            if (!me->isInCombat())
+            if (!me->IsInCombat())
                 return;
 
             float x=0.0f, y=0.0f, z=0.0f;
@@ -128,13 +128,13 @@ public:
                 uiCheckDistanceTimer -= uiDiff;
                 return;
             }
-            if (me->IsInEvadeMode() || !me->getVictim())
+            if (me->IsInEvadeMode() || !me->GetVictim())
                 return;
             if (me->GetDistance(x, y, z) > dist)
                 EnterEvadeMode();
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -153,7 +153,7 @@ public:
 
             if (uiPierceTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_PIERCE_ARMOR);
+                DoCastVictim(SPELL_PIERCE_ARMOR);
                 uiPierceTimer = 8*IN_MILLISECONDS;
             } else uiPierceTimer -= diff;
 
@@ -190,7 +190,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new boss_hadronoxAI(creature);
     }
@@ -198,5 +198,5 @@ public:
 
 void AddSC_boss_hadronox()
 {
-    new boss_hadronox;
+    new boss_hadronox();
 }

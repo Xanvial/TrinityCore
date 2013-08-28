@@ -54,7 +54,7 @@ struct npc_escortAI : public ScriptedAI
 
         void EnterEvadeMode();
 
-        void UpdateAI(uint32 const diff);                   //the "internal" update, calls UpdateEscortAI()
+        void UpdateAI(uint32 diff);                   //the "internal" update, calls UpdateEscortAI()
         virtual void UpdateEscortAI(uint32 const diff);     //used when it's needed to add code in update (abilities, scripted events, etc)
 
         void MovementInform(uint32, uint32);
@@ -92,7 +92,7 @@ struct npc_escortAI : public ScriptedAI
         uint64 GetEventStarterGUID() { return m_uiPlayerGUID; }
 
     protected:
-        Player* GetPlayerForEscort() { return (Player*)Unit::GetUnit(*me, m_uiPlayerGUID); }
+        Player* GetPlayerForEscort() { return ObjectAccessor::GetPlayer(*me, m_uiPlayerGUID); }
 
     private:
         bool AssistPlayerInCombat(Unit* who);

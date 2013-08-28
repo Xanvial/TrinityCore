@@ -152,7 +152,7 @@ class npc_winterfin_playmate : public CreatureScript
         {
             npc_winterfin_playmateAI(Creature* creature) : ScriptedAI(creature) {}
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 timer = 0;
                 phase = 0;
@@ -160,7 +160,8 @@ class npc_winterfin_playmate : public CreatureScript
                 orphanGUID = 0;
             }
 
-            void MoveInLineOfSight(Unit* who)
+            void MoveInLineOfSight(Unit* who) OVERRIDE
+
             {
                 if (!phase && who && who->GetDistance2d(me) < 10.0f)
                     if (Player* player = who->ToPlayer())
@@ -173,15 +174,15 @@ class npc_winterfin_playmate : public CreatureScript
                         }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!phase)
                     return;
 
                 if (timer <= diff)
                 {
-                    Player* player = Player::GetPlayer(*me, playerGUID);
-                    Creature* orphan = Creature::GetCreature(*me, orphanGUID);
+                    Player* player = ObjectAccessor::GetPlayer(*me, playerGUID);
+                    Creature* orphan = ObjectAccessor::GetCreature(*me, orphanGUID);
 
                     if (!orphan || !player)
                     {
@@ -232,7 +233,7 @@ class npc_winterfin_playmate : public CreatureScript
 
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new npc_winterfin_playmateAI(creature);
         }
@@ -250,7 +251,7 @@ class npc_snowfall_glade_playmate : public CreatureScript
         {
             npc_snowfall_glade_playmateAI(Creature* creature) : ScriptedAI(creature) {}
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 timer = 0;
                 phase = 0;
@@ -258,7 +259,8 @@ class npc_snowfall_glade_playmate : public CreatureScript
                 orphanGUID = 0;
             }
 
-            void MoveInLineOfSight(Unit* who)
+            void MoveInLineOfSight(Unit* who) OVERRIDE
+
             {
                 if (!phase && who && who->GetDistance2d(me) < 10.0f)
                     if (Player* player = who->ToPlayer())
@@ -271,15 +273,15 @@ class npc_snowfall_glade_playmate : public CreatureScript
                         }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!phase)
                     return;
 
                 if (timer <= diff)
                 {
-                    Player* player = Player::GetPlayer(*me, playerGUID);
-                    Creature* orphan = Creature::GetCreature(*me, orphanGUID);
+                    Player* player = ObjectAccessor::GetPlayer(*me, playerGUID);
+                    Creature* orphan = ObjectAccessor::GetCreature(*me, orphanGUID);
 
                     if (!orphan || !player)
                     {
@@ -350,7 +352,7 @@ class npc_the_biggest_tree : public CreatureScript
                 me->SetDisplayId(DISPLAY_INVISIBLE);
             }
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 timer = 1000;
                 phase = 0;
@@ -358,7 +360,8 @@ class npc_the_biggest_tree : public CreatureScript
                 orphanGUID = 0;
             }
 
-            void MoveInLineOfSight(Unit* who)
+            void MoveInLineOfSight(Unit* who) OVERRIDE
+
             {
                 if (!phase && who && who->GetDistance2d(me) < 10.0f)
                     if (Player* player = who->ToPlayer())
@@ -371,15 +374,15 @@ class npc_the_biggest_tree : public CreatureScript
                         }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!phase)
                     return;
 
                 if (timer <= diff)
                 {
-                    Player* player = Player::GetPlayer(*me, playerGUID);
-                    Creature* orphan = Creature::GetCreature(*me, orphanGUID);
+                    Player* player = ObjectAccessor::GetPlayer(*me, playerGUID);
+                    Creature* orphan = ObjectAccessor::GetCreature(*me, orphanGUID);
 
                     if (!orphan || !player)
                     {
@@ -418,7 +421,7 @@ class npc_the_biggest_tree : public CreatureScript
 
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new npc_the_biggest_treeAI(creature);
         }
@@ -436,7 +439,7 @@ class npc_high_oracle_soo_roo : public CreatureScript
         {
             npc_high_oracle_soo_rooAI(Creature* creature) : ScriptedAI(creature) {}
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 timer = 0;
                 phase = 0;
@@ -444,7 +447,8 @@ class npc_high_oracle_soo_roo : public CreatureScript
                 orphanGUID = 0;
             }
 
-            void MoveInLineOfSight(Unit* who)
+            void MoveInLineOfSight(Unit* who) OVERRIDE
+
             {
                 if (!phase && who && who->GetDistance2d(me) < 10.0f)
                     if (Player* player = who->ToPlayer())
@@ -457,15 +461,15 @@ class npc_high_oracle_soo_roo : public CreatureScript
                         }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!phase)
                     return;
 
                 if (timer <= diff)
                 {
-                    Player* player = Player::GetPlayer(*me, playerGUID);
-                    Creature* orphan = Creature::GetCreature(*me, orphanGUID);
+                    Player* player = ObjectAccessor::GetPlayer(*me, playerGUID);
+                    Creature* orphan = ObjectAccessor::GetCreature(*me, orphanGUID);
 
                     if (!orphan || !player)
                     {
@@ -506,7 +510,7 @@ class npc_high_oracle_soo_roo : public CreatureScript
 
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new npc_high_oracle_soo_rooAI(creature);
         }
@@ -524,7 +528,7 @@ class npc_elder_kekek : public CreatureScript
         {
             npc_elder_kekekAI(Creature* creature) : ScriptedAI(creature) {}
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 timer = 0;
                 phase = 0;
@@ -532,7 +536,8 @@ class npc_elder_kekek : public CreatureScript
                 orphanGUID = 0;
             }
 
-            void MoveInLineOfSight(Unit* who)
+            void MoveInLineOfSight(Unit* who) OVERRIDE
+
             {
                 if (!phase && who && who->GetDistance2d(me) < 10.0f)
                     if (Player* player = who->ToPlayer())
@@ -545,15 +550,15 @@ class npc_elder_kekek : public CreatureScript
                         }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!phase)
                     return;
 
                 if (timer <= diff)
                 {
-                    Player* player = Player::GetPlayer(*me, playerGUID);
-                    Creature* orphan = Creature::GetCreature(*me, orphanGUID);
+                    Player* player = ObjectAccessor::GetPlayer(*me, playerGUID);
+                    Creature* orphan = ObjectAccessor::GetCreature(*me, orphanGUID);
 
                     if (!player || !orphan)
                     {
@@ -593,7 +598,7 @@ class npc_elder_kekek : public CreatureScript
 
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new npc_elder_kekekAI(creature);
         }
@@ -601,7 +606,7 @@ class npc_elder_kekek : public CreatureScript
 
 /*######
 ## npc_the_etymidian
-## TODO: A red crystal as a gift for the great one should be spawned during the event.
+## @todo A red crystal as a gift for the great one should be spawned during the event.
 ######*/
 class npc_the_etymidian : public CreatureScript
 {
@@ -612,7 +617,7 @@ class npc_the_etymidian : public CreatureScript
         {
             npc_the_etymidianAI(Creature* creature) : ScriptedAI(creature) {}
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 timer = 0;
                 phase = 0;
@@ -620,7 +625,8 @@ class npc_the_etymidian : public CreatureScript
                 orphanGUID = 0;
             }
 
-            void MoveInLineOfSight(Unit* who)
+            void MoveInLineOfSight(Unit* who) OVERRIDE
+
             {
                 if (!phase && who && who->GetDistance2d(me) < 10.0f)
                     if (Player* player = who->ToPlayer())
@@ -633,15 +639,15 @@ class npc_the_etymidian : public CreatureScript
                         }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!phase)
                     return;
 
                 if (timer <= diff)
                 {
-                    Player* player = Player::GetPlayer(*me, playerGUID);
-                    Creature* orphan = Creature::GetCreature(*me, orphanGUID);
+                    Player* player = ObjectAccessor::GetPlayer(*me, playerGUID);
+                    Creature* orphan = ObjectAccessor::GetCreature(*me, orphanGUID);
 
                     if (!orphan || !player)
                     {
@@ -684,13 +690,12 @@ class npc_the_etymidian : public CreatureScript
         private:
             uint32 timer;
             int8 phase;
-            uint32 GOtimer;
             uint64 playerGUID;
             uint64 orphanGUID;
 
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new npc_the_etymidianAI(creature);
         }
@@ -708,7 +713,7 @@ class npc_alexstraza_the_lifebinder : public CreatureScript
         {
             npc_alexstraza_the_lifebinderAI(Creature* creature) : ScriptedAI(creature) {}
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 timer = 0;
                 phase = 0;
@@ -716,7 +721,7 @@ class npc_alexstraza_the_lifebinder : public CreatureScript
                 orphanGUID = 0;
             }
 
-            void SetData(uint32 type, uint32 data)
+            void SetData(uint32 type, uint32 data) OVERRIDE
             {
                 // Existing SmartAI
                 if (type == 0)
@@ -733,7 +738,8 @@ class npc_alexstraza_the_lifebinder : public CreatureScript
                 }
             }
 
-            void MoveInLineOfSight(Unit* who)
+            void MoveInLineOfSight(Unit* who) OVERRIDE
+
             {
                 if (!phase && who && who->GetDistance2d(me) < 10.0f)
                     if (Player* player = who->ToPlayer())
@@ -755,15 +761,15 @@ class npc_alexstraza_the_lifebinder : public CreatureScript
                     }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!phase)
                     return;
 
                 if (timer <= diff)
                 {
-                    Player* player = Player::GetPlayer(*me, playerGUID);
-                    Creature* orphan = Creature::GetCreature(*me, orphanGUID);
+                    Player* player = ObjectAccessor::GetPlayer(*me, playerGUID);
+                    Creature* orphan = ObjectAccessor::GetCreature(*me, orphanGUID);
 
                     if (!orphan || !player)
                     {
@@ -847,11 +853,10 @@ class npc_alexstraza_the_lifebinder : public CreatureScript
                 uint32 timer;
                 uint64 playerGUID;
                 uint64 orphanGUID;
-                uint64 alexstraszaGUID;
 
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new npc_alexstraza_the_lifebinderAI(creature);
         }
@@ -928,7 +933,8 @@ class npc_cw_area_trigger : public CreatureScript
                 me->SetDisplayId(DISPLAY_INVISIBLE);
             }
 
-            void MoveInLineOfSight(Unit* who)
+            void MoveInLineOfSight(Unit* who) OVERRIDE
+
             {
                 if (who && me->GetDistance2d(who) < 20.0f)
                     if (Player* player = who->ToPlayer())
@@ -1003,7 +1009,7 @@ class npc_cw_area_trigger : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new npc_cw_area_triggerAI(creature);
         }
@@ -1024,7 +1030,8 @@ class npc_grizzlemaw_cw_trigger : public CreatureScript
                 me->SetDisplayId(DISPLAY_INVISIBLE);
             }
 
-            void MoveInLineOfSight(Unit* who)
+            void MoveInLineOfSight(Unit* who) OVERRIDE
+
             {
                 if (who && who->GetDistance2d(me) < 10.0f)
                     if (Player* player = who->ToPlayer())
@@ -1037,7 +1044,7 @@ class npc_grizzlemaw_cw_trigger : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new npc_grizzlemaw_cw_triggerAI(creature);
         }

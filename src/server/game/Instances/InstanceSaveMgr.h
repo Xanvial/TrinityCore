@@ -81,10 +81,29 @@ class InstanceSave
         /* online players bound to the instance (perm/solo)
            does not include the members of the group unless they have permanent saves */
         void AddPlayer(Player* player) { TRINITY_GUARD(ACE_Thread_Mutex, _lock); m_playerList.push_back(player); }
-        bool RemovePlayer(Player* player) { TRINITY_GUARD(ACE_Thread_Mutex, _lock); m_playerList.remove(player); return UnloadIfEmpty(); }
+        bool RemovePlayer(Player* player)
+        { 
+            _lock.acquire();
+            m_playerList.remove(player);
+            bool isStillValid = UnloadIfEmpty();
+            _lock.release();
+
+            //delete here if needed, after releasing the lock
+            if(m_toDelete)
+                delete this;
+
+            return isStillValid;
+        }
         /* all groups bound to the instance */
         void AddGroup(Group* group) { m_groupList.push_back(group); }
-        bool RemoveGroup(Group* group) { m_groupList.remove(group); return UnloadIfEmpty(); }
+        bool RemoveGroup(Group* group)
+        { 
+            m_groupList.remove(group);
+            bool isStillValid = UnloadIfEmpty();
+            if(m_toDelete)
+                delete this;
+            return isStillValid;
+        }
 
         /* instances cannot be reset (except at the global reset time)
            if there are players permanently bound to it
@@ -96,13 +115,19 @@ class InstanceSave
            but that would depend on a lot of things that can easily change in future */
         Difficulty GetDifficulty() const { return m_difficulty; }
 
+        /* used to flag the InstanceSave as to be deleted, so the caller can delete it */
+        void SetToDelete(bool toDelete)
+        {
+            m_toDelete = toDelete;
+        }
+
         typedef std::list<Player*> PlayerListType;
         typedef std::list<Group*> GroupListType;
     private:
         bool UnloadIfEmpty();
         /* the only reason the instSave-object links are kept is because
-           the object-instSave links need to be broken at reset time
-           TODO: maybe it's enough to just store the number of players/groups */
+           the object-instSave links need to be broken at reset time */
+           /// @todo: Check if maybe it's enough to just store the number of players/groups
         PlayerListType m_playerList;
         GroupListType m_groupList;
         time_t m_resetTime;
@@ -110,6 +135,7 @@ class InstanceSave
         uint32 m_mapid;
         Difficulty m_difficulty;
         bool m_canReset;
+        bool m_toDelete;
 
         ACE_Thread_Mutex _lock;
 };

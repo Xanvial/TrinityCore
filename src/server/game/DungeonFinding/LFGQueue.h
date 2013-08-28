@@ -20,6 +20,9 @@
 
 #include "LFG.h"
 
+namespace lfg
+{
+
 enum LfgCompatibility
 {
     LFG_COMPATIBILITY_PENDING,
@@ -97,7 +100,7 @@ class LFGQueue
         void UpdateWaitTimeDps(int32 waitTime, uint32 dungeonId);
 
         // Update Queue timers
-        void UpdateQueueTimers(time_t currTime);
+        void UpdateQueueTimers(uint8 queueId, time_t currTime);
         time_t GetJoinTime(uint64 guid);
 
         // Find new group
@@ -139,5 +142,7 @@ class LFGQueue
         LfgGuidList currentQueueStore;                     ///< Ordered list. Used to find groups
         LfgGuidList newToQueueStore;                       ///< New groups to add to queue
 };
+
+} // namespace lfg
 
 #endif

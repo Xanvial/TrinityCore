@@ -84,9 +84,9 @@ class boss_hydross_the_unstable : public CreatureScript
 public:
     boss_hydross_the_unstable() : CreatureScript("boss_hydross_the_unstable") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_hydross_the_unstableAI (creature);
+        return new boss_hydross_the_unstableAI(creature);
     }
 
     struct boss_hydross_the_unstableAI : public ScriptedAI
@@ -94,6 +94,8 @@ public:
         boss_hydross_the_unstableAI(Creature* creature) : ScriptedAI(creature), Summons(me)
         {
             instance = creature->GetInstanceScript();
+            beams[0] = 0;
+            beams[1] = 0;
         }
 
         InstanceScript* instance;
@@ -111,7 +113,7 @@ public:
         bool beam;
         SummonList Summons;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             DeSummonBeams();
             beams[0] = 0;
@@ -159,17 +161,16 @@ public:
         }
         void DeSummonBeams()
         {
-            for (uint8 i=0; i<2; ++i)
+            for (uint8 i = 0; i < 2; ++i)
             {
-                Creature* mob = Unit::GetCreature(*me, beams[i]);
-                if (mob)
+                if (Creature* mob = Unit::GetCreature(*me, beams[i]))
                 {
                     mob->setDeathState(DEAD);
                     mob->RemoveCorpse();
                 }
             }
         }
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             Talk(SAY_AGGRO);
 
@@ -177,12 +178,12 @@ public:
                 instance->SetData(DATA_HYDROSSTHEUNSTABLEEVENT, IN_PROGRESS);
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) OVERRIDE
         {
             Talk(CorruptedForm ? SAY_CORRUPT_SLAY : SAY_CLEAN_SLAY);
         }
 
-        void JustSummoned(Creature* summoned)
+        void JustSummoned(Creature* summoned) OVERRIDE
         {
             if (summoned->GetEntry() == ENTRY_PURE_SPAWN)
             {
@@ -198,12 +199,12 @@ public:
             }
         }
 
-        void SummonedCreatureDespawn(Creature* summon)
+        void SummonedCreatureDespawn(Creature* summon) OVERRIDE
         {
             Summons.Despawn(summon);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             Talk(CorruptedForm ? SAY_CORRUPT_DEATH : SAY_CLEAN_DEATH);
 
@@ -212,7 +213,7 @@ public:
             Summons.DespawnAll();
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!beam)
             {
@@ -260,7 +261,7 @@ public:
                                 break;
                         }
 
-                        DoCast(me->getVictim(), mark_spell);
+                        DoCastVictim(mark_spell);
 
                         if (MarkOfCorruption_Count < 5)
                             ++MarkOfCorruption_Count;
@@ -272,8 +273,7 @@ public:
                 //VileSludge_Timer
                 if (VileSludge_Timer <= diff)
                 {
-                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                    if (target)
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         DoCast(target, SPELL_VILE_SLUDGE);
 
                     VileSludge_Timer = 15000;
@@ -344,7 +344,7 @@ public:
                                 break;
                         }
 
-                        DoCast(me->getVictim(), mark_spell);
+                        DoCastVictim(mark_spell);
 
                         if (MarkOfHydross_Count < 5)
                             ++MarkOfHydross_Count;

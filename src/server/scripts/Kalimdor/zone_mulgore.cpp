@@ -56,7 +56,7 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (creature->isQuestGiver())
+        if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
 
         if (!player->GetQuestRewardStatus(770))
@@ -90,7 +90,7 @@ class npc_kyle_frenzied : public CreatureScript
 public:
     npc_kyle_frenzied() : CreatureScript("npc_kyle_frenzied") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_kyle_frenziedAI (creature);
     }
@@ -105,7 +105,7 @@ public:
         uint32 EventTimer;
         uint8 EventPhase;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             EventActive = false;
             IsMovingToLunch = false;
@@ -119,7 +119,7 @@ public:
 
         void SpellHit(Unit* Caster, SpellInfo const* Spell)
         {
-            if (!me->getVictim() && !EventActive && Spell->Id == SPELL_LUNCH)
+            if (!me->GetVictim() && !EventActive && Spell->Id == SPELL_LUNCH)
             {
                 if (Caster->GetTypeId() == TYPEID_PLAYER)
                     PlayerGUID = Caster->GetGUID();
@@ -137,16 +137,16 @@ public:
             }
         }
 
-        void MovementInform(uint32 Type, uint32 PointId)
+        void MovementInform(uint32 type, uint32 pointId) OVERRIDE
         {
-            if (Type != POINT_MOTION_TYPE || !EventActive)
+            if (type != POINT_MOTION_TYPE || !EventActive)
                 return;
 
-            if (PointId == POINT_ID)
+            if (pointId == POINT_ID)
                 IsMovingToLunch = false;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (EventActive)
             {
@@ -161,7 +161,7 @@ public:
                     switch (EventPhase)
                     {
                         case 1:
-                            if (Unit* unit = Unit::GetUnit(*me, PlayerGUID))
+                            if (Unit* unit = ObjectAccessor::GetUnit(*me, PlayerGUID))
                             {
                                 if (GameObject* go = unit->GetGameObject(SPELL_LUNCH))
                                 {
@@ -175,7 +175,7 @@ public:
                             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USE_STANDING);
                             break;
                         case 3:
-                            if (Player* unit = Unit::GetPlayer(*me, PlayerGUID))
+                            if (Player* unit = ObjectAccessor::GetPlayer(*me, PlayerGUID))
                                 unit->TalkedToCreature(me->GetEntry(), me->GetGUID());
 
                             me->UpdateEntry(NPC_KYLE_FRIENDLY);
